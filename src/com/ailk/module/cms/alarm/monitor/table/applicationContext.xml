@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-init-method="start" default-destroy-method="destroy">
+
+	<!-- 动态加载日志配置信息 -->
+	<bean id="cms_monitor_table_log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer"
+		lazy-init="false">
+		<property name="watch_delay" value="10000"></property>
+		<property name="config_path"
+			value="classpath:com/ailk/module/cms/alarm/monitor/table/log4j.properties"></property>
+	</bean>
+
+	<!-- 短信corba接口 -->
+	<bean id="cms_monitor_table_corbaClientCreator" class="com.linkage.system.utils.corba.CorbaClientCreator">
+		<property name="creatorName" value="message"></property>
+		<property name="corbaService">
+			<ref bean="corbaService" />
+		</property>
+		<property name="targetLocaltion"
+			value="ShortMessagePoa.PoaName/ShortMessage.ObjectName">
+		</property>
+		<property name="targetInterface" value="com.linkage.system.corbabus.CorbaBusAdpater">
+		</property>
+		<property name="sync" value="false"></property>
+	</bean>
+
+	<bean id="cms_monitor_table_corbaMsgSupport" class="com.linkage.system.utils.corba.CorbaMsgSupport">
+		<property name="corbaBusAdpater" ref="cms_monitor_table_corbaClientCreator"></property>
+		<property name="charset" value="ISO8859-1"></property>
+	</bean>
+
+	<bean id="cms_monitor_table_MonitorTableExistsDAOImp"
+		class="com.ailk.module.cms.alarm.monitor.table.dao.MonitorTableExistsDAOImp"
+		parent="baseDao">
+	</bean>
+
+	<!-- 短信接收人 -->
+	<bean id="cms_monitor_table_smsReceivers" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<!-- <value>13451915286</value> -->
+				<value>13776503058</value>
+				<value>13951850204</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="cms_monitor_table_MonitorTableExistsServImp"
+		class="com.ailk.module.cms.alarm.monitor.table.serv.MonitorTableExistsServImp">
+		<property name="mteDao" ref="cms_monitor_table_MonitorTableExistsDAOImp"></property>
+		<property name="smsci" ref="cms_monitor_table_corbaMsgSupport"></property>
+		<property name="smsReceivers" ref="cms_monitor_table_smsReceivers"></property>
+		<property name="smsTopic" value="/Alarm/Abims/ShortMessage"></property>
+	</bean>
+
+</beans>

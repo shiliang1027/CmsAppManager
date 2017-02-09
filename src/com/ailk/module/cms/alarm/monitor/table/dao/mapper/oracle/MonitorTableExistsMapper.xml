@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="com.ailk.module.cms.alarm.monitor.table.dao.MonitorTableExistsDAOImp">
+	<select id="queryExistsTable" parameterType="string" resultType="int">
+		<![CDATA[
+			select count(1) from user_tables where table_name=#{tn}
+		]]>
+	</select>
+</mapper>

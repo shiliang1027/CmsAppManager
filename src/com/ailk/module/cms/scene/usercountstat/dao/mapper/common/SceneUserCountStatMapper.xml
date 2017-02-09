@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.alarm.alarmassociate.dao.AlarmAssociateDAOImp">
+	<select id="getTrainGroupList" parameterType="map" resultType="map">
+		SELECT B.GROUP_ID, B.MO_ID, B.MO_TYPE_ID, B.PERF_TYPE_ID
+		  FROM TS_TRAIN_LOCATION A, TS_TRAIN_GROUP B
+		 WHERE A.GROUP_ID = B.GROUP_ID
+	</select>
+	
+	<select id="getTrainGroupListByGroupId" parameterType="map" resultType="map">
+		SELECT GROUP_ID, OPER, THRESHOLD
+		  FROM TS_TRAIN_LOCATION
+		 WHERE GROUP_ID IN  (${groupId})
+	</select>
+	
+	<select id="updateUserCount" parameterType="map" resultType="map">
+		 UPDATE TS_TRAIN_LOCATION
+		    SET VALUE = #{value}, UPDATETIME = #{updateTime}, ISSHOW = #{isShow}
+		  WHERE GROUP_ID = #{groupId}
+	</select>
+</mapper>

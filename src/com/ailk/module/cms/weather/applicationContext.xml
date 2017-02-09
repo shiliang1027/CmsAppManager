@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer" init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path" value="classpath:com/ailk/module/cms/weather/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+	<!-- 导入spring公共配置 -->
+	<import resource="classpath:applicationContext_public.xml" />
+	<!-- Properties -->
+	<bean id="propertyplace" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath:com/ailk/module/cms/weather/app.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_weather_WeatherDAO" class="com.ailk.module.cms.weather.dao.WeatherDAOImp" parent="baseDao" />
+	<bean id="cms_weather_WeatherServ" class="com.ailk.module.cms.weather.serv.WeatherServImp">
+		<property name="dao">
+			<ref local="cms_weather_WeatherDAO" />
+		</property>
+		<property name="weatherQueryUrl" value="http://api.map.baidu.com/telematics/v3/weather?location={keyWord}&amp;output={output}&amp;ak=z3Mnok3mu8dldBgEdLVxGbcr"></property>
+	</bean>
+</beans>

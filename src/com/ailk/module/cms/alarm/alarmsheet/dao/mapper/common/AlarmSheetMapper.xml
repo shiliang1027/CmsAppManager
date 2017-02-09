@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.alarm.alarmsheet.dao.AlarmSheetDAOImp">
+	<update id="createSheetTabList" parameterType="map">
+		create table ${sheetHis}
+		(
+			alarmuniqueid           varchar2(255),
+			city                    varchar2(100),
+	        specialtyname           varchar2(50),
+	        sheetsendstatus         number(2),
+	        alarmtitle              varchar2(255),
+	        nename                  varchar2(255),
+	        alarmnetype             varchar2(255),
+	       	sheetid                 varchar2(100),
+	        eventtime               number(10),
+	        daltime                 number(10),
+	        sheetstarttime          number(10),
+	        sourceflg               number(2),
+			primary key (alarmuniqueid)
+		) tablespace tbs_report
+	</update>
+	<update id="statAlarmAutoSendSheetData" parameterType="map">
+		 <![CDATA[
+		 insert into ${sheetHis}(alarmuniqueid,city,specialtyname,sheetsendstatus,alarmtitle,nename,alarmnetype,sheetid,eventtime,daltime,sheetstarttime,sourceflg)
+		  select distinct a.alarmuniqueid,a.alarmregion,c.spec_name,a.sheetsendstatus,a.alarmtitle,a.nename,a.alarmnetype,b.sheetno,a.eventtime,a.daltime,a.sheetstarttime,b.sourceflg
+		    from (select alarmuniqueid,specialty,alarmregion,sheetsendstatus,alarmtitle,nename,alarmnetype,eventtime,daltime,sheetstarttime
+		            from ta_realalarm
+		           where alarmseverity = 1
+						 and daltime >= ${startTime}
+		             	 and daltime <= ${endTime}
+		          union all
+		          select alarmuniqueid,specialty,alarmregion,sheetsendstatus,alarmtitle,nename,alarmnetype,eventtime,daltime,sheetstarttime
+		            from ${alarmHis}
+		           where alarmseverity = 1
+						 and daltime >= ${startTime}
+		             	 and daltime <= ${endTime}
+		             ) a
+		   left join ta_fault_dispatch b on a.alarmuniqueid = b.serialno and b.sourceflg=10
+		   inner join tr_net_spec c on a.specialty = c.spec_id
+		   ]]>
+	</update>
+</mapper>

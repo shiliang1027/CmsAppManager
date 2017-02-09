@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.topo.zte.u31.dao.ZteDAOImp">
+	<select id="getEmsInfo" parameterType="hashmap" resultType="hashmap">
+		select ems_id as "ems_id",city_id as "city_id" from tr_ems
+		<where>
+			ems_name='${emsName}'
+		</where>
+	</select>
+	<select id="getMoInfo" parameterType="hashmap" resultType="hashmap">
+		select a.mo_id as "mo_id",a.mo_name as "mo_name",a.omc_mo_name as "omc_mo_name" from tr_mo_info a
+		<where>
+			a.ems_id='${ems_id}' or a.omc_mo_name like '%${ems_name}%'
+		</where>
+	</select>
+	<select id="getMoModel" parameterType="hashmap" resultType="hashmap">
+		select a.dev_model as "dev_model",b.mo_type_name as "mo_type_name",b.mo_type_id as "mo_type_id"
+		 from tr_mo_model a inner join tr_mo_type b on a.dev_type_ext = b.mo_type_name where a.vendor_id='${vendor_id}'
+	</select>
+	<insert id="batchSaveSystemInfo" parameterType="hashmap">
+		insert into tr_tran_subsystem(sub_system_id,sub_system_name,ems_id,ems_name,sub_system_pid,x,y)
+		values('${sub_system_id}','${sub_system_name}','${ems_id}','${ems_name}','${sub_system_pid}',${x},${y})
+	</insert>
+	<insert id="batchSaveMoInfo" parameterType="hashmap">
+		insert into tr_mo_info(mo_id,mo_type_id,mo_name,mo_name_alias,oper_stat,mana_stat,add_time,upd_time,del_time,city_id,longitude,latitude,work_stat,vendor_id,dev_model,omc_id,omc_mo_name,ems_id)
+		values('${mo_id}',${mo_type_id},'${mo_name}','${mo_name_alias}',-1,0,0,0,0,'${city_id}',${longitude},${latitude},2,'${vendor_id}','${dev_model}',-1,'${omc_mo_name}','${ems_id}')
+	</insert>
+	<insert id="batchSaveTranSystemInfo" parameterType="hashmap">
+		insert into tr_mo_tran_subsystem(mo_id,sub_system_id,ems_id)
+		values('${mo_id}','${sub_system_id}','${ems_id}')
+	</insert>
+	<insert id="bacthSaveViewLinkInfo" parameterType="hashmap">
+		insert into tr_tran_tp_link_js(topo_id,ems_id,amo_id,amo_name,aport_id,aport_name,zmo_id,zmo_name,zport_id,zport_name,direction)
+		values('${topo_id}','${ems_id}','${amo_id}','${amo_name}','${aport_id}','${aport_name}','${zmo_id}','${zmo_name}','${zport_id}','${zport_name}','${direction}')
+	</insert>
+	<update id="batchUpdateMoInfo" parameterType="hashmap">
+		update tr_mo_info set longitude=${longitude},latitude=${latitude} where mo_id='${mo_id}'
+	</update>
+	<delete id="deleteMoSystemInfo" parameterType="hashmap">
+		delete from tr_mo_tran_subsystem where ems_id='${ems_id}'
+	</delete>
+	<delete id="deleteSystemInfo" parameterType="hashmap">
+		delete from tr_tran_subsystem where ems_id='${ems_id}'
+	</delete>
+	<delete id="deleteSystemLinkInfo" parameterType="hashmap">
+		delete from tr_tran_tp_link_js where ems_id='${ems_id}'
+	</delete>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="com.ailk.module.cms.alarm.sheet.complaint.dao.ComplaintDAOImp">
+	
+  	<select id="queryComplaintData" parameterType="map" resultType="map">
+  	<![CDATA[
+		select t.form_no             "sheetno",
+		       t.complain_id         "sheetid",
+		       t.title               "sheettitle",
+		       t.complain_level_name "urgency_level_name",
+		       t.accept_time         "sendtime",
+		       t.limit_time          "sheettime",
+		       t.complain_city_name  "failureoccurcity",
+		       t.country_code        "failureoccurcountry",
+		       t.class_one_name      "firstclass",
+		       t.class_two_name      "secondclass",
+		       t.custom_name         "rel_man",
+		       t.large_scale_complaints "isgroupsheet",
+		       t.group_name          "groupcustomer",
+		       t.custom_class_name   "customerclass",
+		       t.business_type_name  "bussiness",
+		       t.group_code          "customerid" 
+	  from t_zhjk_tousu t
+	 where to_char(t.accept_time, 'yyyy-mm-dd mm:hh:ss') >  '${beginTime}'
+	  and to_char(t.accept_time, 'yyyy-mm-dd mm:hh:ss') < = '${endTime}'
+	  	]]> 
+	</select>
+	
+	<select id="queryCityList" parameterType="map" resultType="map">
+  	<![CDATA[
+		select t.city_id as "city_id", t.city_name as "city_name"
+		  from tab_city t
+		 where t.city_layer = 2 
+		 	and t.city_id != '000'
+		 	order by t.sequ
+	  	]]> 
+	</select>
+	
+	
+	<insert id="insertComplain" parameterType="hashmap">
+    	<![CDATA[
+    	insert into ta_complaint_dispatch
+    	(sheetno,sheetid,sheettitle,urgency_level_name,sendtime,sheettime,failureoccurcity,failureoccurcountry,
+    	firstclass,secondclass,rel_man,isgroupsheet,groupcustomer,customerclass,bussiness,customerid,createtime)
+    	values
+    	(#{sheetno,jdbcType=VARCHAR},#{sheetid,jdbcType=VARCHAR},#{sheettitle,jdbcType=VARCHAR},#{urgency_level_name,jdbcType=VARCHAR},#{sendtime},#{sheettime},#{failureoccurcity,jdbcType=VARCHAR},
+    	#{failureoccurcountry,jdbcType=VARCHAR},#{firstclass,jdbcType=VARCHAR},#{secondclass,jdbcType=VARCHAR},#{rel_man,jdbcType=VARCHAR},1,#{groupcustomer,jdbcType=VARCHAR},#{customerclass,jdbcType=VARCHAR},#{bussiness,jdbcType=VARCHAR},#{customerid,jdbcType=VARCHAR},#{createtime})
+    	]]>
+    </insert>
+    
+    <delete id="deleteComplaintData" parameterType="hashmap">
+    <![CDATA[
+		delete from ta_complaint_dispatch where createtime > ${t1} and createtime < = ${t2} and isgroupsheet = 1
+	]]>
+	</delete>
+</mapper>

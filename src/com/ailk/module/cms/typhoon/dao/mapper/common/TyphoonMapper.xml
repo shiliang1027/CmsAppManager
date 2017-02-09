@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.typhoon.dao.TyphoonDAOImp">
+	<insert id="saveTyphoonData" parameterType="map">
+		insert into tab_typhoon(code,title,daltime,windspeed,longitude,latitude,pneumatic,wind7Radius,wind10Radius) values(#{code},#{title},#{daltime},#{windspeed},#{longitude},#{latitude},#{pneumatic},#{wind7Radius},#{wind10Radius})
+	</insert>
+	<delete id="deleteTyphoonData">
+	    delete from tab_typhoon
+	</delete>
+</mapper>

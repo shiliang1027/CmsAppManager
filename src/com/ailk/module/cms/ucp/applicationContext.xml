@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer" init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path" value="classpath:com/ailk/module/cms/ucp/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+	<!-- 导入spring公共配置 -->
+	<import resource="classpath:conf/applicationContext_public.xml" />
+	<!-- Properties -->
+	<bean id="propertyplace" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:conf/system.properties</value>
+				<value>classpath:com/ailk/module/cms/ucp/app.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_ucp_UcpDAOImp" class="com.ailk.module.cms.ucp.dao.UcpDAOImp" parent="baseDao"/>
+	<bean id="cms_ucp_UcpServImp" class="com.ailk.module.cms.ucp.serv.UcpServImp">
+		<property name="ucpDao">
+			<ref local="cms_ucp_UcpDAOImp" />
+		</property>
+		<property name="path">
+			<value>/export/home/linkage/fileserver/pm/enb</value>
+		</property>
+	</bean>
+</beans>

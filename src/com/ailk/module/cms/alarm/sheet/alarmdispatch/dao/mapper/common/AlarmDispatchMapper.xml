@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="com.ailk.module.cms.alarm.sheet.alarmdispatch.dao.AlarmDispatchDAOImp">
+	<select id="saveDispatchList" parameterType="map" resultType="map">
+		<![CDATA[
+		insert into ${sheetHis} 
+	    	(serialno, city, specialtyname, vendor, alarmtitle, nename, alarmnetype, sheetid, eventtime, daltime, sendtime,sheettime,isTimely,dispatchsendtime)
+		select distinct t.serialno,t.city_name,t.spec_name,t.vendor,t.alarmtitle,t.nename,t.equipmentclass,t.sheetno,t.eventtime,t.daltime,t.sheetstarttime
+			,t.delaytime,1,t.sendtime from (
+		          select a.daltime ,a.vendor ,a.sheetstarttime,b.serialno ,b.city_name ,
+                  b.specialty ,b.alarmtitle,b.nename,b.equipmentclass ,
+                   b.sheetno,b.eventtime ,b.delaytime ,c.spec_name,b.sendtime
+		            from ta_realalarm a ,ta_fault_dispatch b,tr_net_spec c
+		             where a.alarmuniqueid = b.serialno
+		                 and a.sheetno = b.sheetno
+                         and a.specialty = c.spec_id
+                         and a.locatenestatus = 2
+                         and (a.sheetsendstatus=5 or a.sheetsendstatus=6)
+                         and b.isgroupsheet=0
+                         and b.sourceflg=10
+                         and a.sheetstarttime >= ${startTime}
+		             	 and a.sheetstarttime <= ${endTime}
+		          union all
+					select a.daltime ,a.vendor ,a.sheetstarttime,b.serialno,b.city_name,
+			       b.specialty,b.alarmtitle,b.nename,b.equipmentclass ,
+			       b.sheetno,b.eventtime ,b.delaytime ,c.spec_name,b.sendtime
+					            from ${alarmHis} a,ta_fault_dispatch b,tr_net_spec c
+					           where a.alarmuniqueid = b.serialno
+					           		   and a.sheetno = b.sheetno
+			                           and a.specialty = c.spec_id
+			                           and a.locatenestatus = 2
+			                           and (a.sheetsendstatus=5 or a.sheetsendstatus=6)
+				                       and b.isgroupsheet=0
+				                       and b.sourceflg=10
+				                       and a.sheetstarttime >= ${startTime}
+					             	   and a.sheetstarttime <= ${endTime}
+                              ) t
+		]]>
+	</select>
+
+	<insert id="updateDispatchList" parameterType="map">
+		<![CDATA[
+			update ${sheetHis} set isTimely=0 where ((sendtime-daltime-sheettime)<300 or sendtime=0)
+		]]>
+	</insert>
+
+	<update id="createDispatchTabList" parameterType="map">
+		create table ${sheetHis} ( 
+		serialno      		varchar2(20) not null, 
+		city          		varchar2(50), 
+		specialtyname 		varchar2(50), 
+		vendor        		varchar2(255),
+		alarmtitle    		varchar2(255), 
+		nename        		varchar2(255), 
+		alarmnetype   		varchar2(50), 
+		sheetid       		varchar2(50), 
+		eventtime     		number(10),
+		daltime       		number(10), 
+		sendtime      		number(10), 
+		sheettime     		number(15),
+		isTimely      		number(1),
+		dispatchsendtime 	number(10)
+		) tablespace tbs_report
+	</update>
+
+</mapper>

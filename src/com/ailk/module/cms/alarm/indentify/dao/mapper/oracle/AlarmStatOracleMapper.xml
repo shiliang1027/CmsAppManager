@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.alarm.indentify.dao.AlarmStatDAOImp">
+
+	<select id="judgeTableExists" parameterType="map" resultType="int">
+		select count(1) from user_tables where table_name=#{stat_tab}
+	</select>
+
+	<select id="createTable" parameterType="map" statementType="STATEMENT">
+		<![CDATA[
+			create table ${stat_tab}
+			(
+				alarmuniqueid  		varchar2(50) primary key,
+				gather_time   		number(13),
+				nename        		varchar2(255),
+				equipmentclass 		varchar2(255),
+				alarmtext      		varchar2(4000),
+				daltime        		number(13),
+				eventtime      		number(13),
+				alarmregion    		varchar2(50),
+				vendor         		varchar2(255),
+				alarmseverity  		number(1),
+				alarmstatus    		number(1),
+				alarmtitle     		varchar2(255),
+				canceltime     		number(13),
+				cancelinterval 		number(13),
+				vendorseverity 		varchar2(50),
+				locatenestatus 		number(2),
+				destsignal     		varchar2(255),
+				destnename     		varchar2(255),
+				sheetsendstatus     number(2)
+			) tablespace tbs_alarm
+		]]>
+	</select>
+
+	<update id="truncateTable" parameterType="map">
+		<![CDATA[
+			truncate table ${stat_tab}
+		]]>
+	</update>
+
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<import resource="classpath:conf/applicationContext_public.xml" />
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer" init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path" value="classpath:com/ailk/module/cms/alarm/alarmmatch/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+	
+	
+	<!--237 -->
+	<bean id="cms_alarm_complaint_tousuMainDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="false">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<!-- 10.40.9.193 -->
+		<property name="url" value="jdbc:oracle:thin:@10.40.9.237:1521:ldims" />
+		<property name="username" value="eoms" />
+		<property name="password" value="eoms" />
+	</bean>
+	<bean id="cms_alarm_complaint_tousuSqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource"
+			ref="cms_alarm_complaint_tousuMainDataSource" />
+		<property name="configLocation"
+			value="classpath:conf/jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/module/cms/alarm/sheet/complaint/dao/mapper/common/*.xml
+				</value>
+				<value>
+					classpath*:com/ailk/module/cms/alarm/sheet/complaint/dao/mapper/oracle/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_alarm_complaint_tousuSqlSessionTemplate"
+		class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg
+			ref="cms_alarm_complaint_tousuSqlSessionFactory" />
+	</bean>
+	
+	<!--193或110 -->
+	<bean id="cms_alarm_complaint_eomsMainDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="false">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<!-- 10.40.9.193 -->
+		<property name="url" value="jdbc:oracle:thin:@10.40.9.193:1521:ldims" />
+		<property name="username" value="tablequerymanager" />
+		<property name="password" value="mypassword123" />
+	</bean>
+	<bean id="cms_alarm_complaint_eomsSqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource"
+			ref="cms_alarm_complaint_eomsMainDataSource" />
+		<property name="configLocation"
+			value="classpath:conf/jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/module/cms/alarm/sheet/complaint/dao/mapper/common/*.xml
+				</value>
+				<value>
+					classpath*:com/ailk/module/cms/alarm/sheet/complaint/dao/mapper/oracle/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_alarm_complaint_eomsSqlSessionTemplate"
+		class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg
+			ref="cms_alarm_complaint_eomsSqlSessionFactory" />
+	</bean>
+	
+	
+	
+	<!-- 告警工单数据层 -->
+	<bean id="cms_alarm_complaint_ComplaintDAOImp" class="com.ailk.module.cms.alarm.sheet.complaint.dao.ComplaintDAOImp" parent="baseDao">
+	<property name="tousuStmpt">
+			<ref local="cms_alarm_complaint_tousuSqlSessionTemplate" />
+	</property>
+	<property name="eomsStmpt">
+			<ref local="cms_alarm_complaint_eomsSqlSessionTemplate" />
+	</property>
+	</bean>
+	<!-- 告警工单业务层 -->
+	<bean id="cms_alarm_complaint_ComplaintServImp" class="com.ailk.module.cms.alarm.sheet.complaint.serv.ComplaintServImp">
+		<property name="complaintDAO">
+			<ref local="cms_alarm_complaint_ComplaintDAOImp" />
+		</property>
+		<property name="addStartTime">
+			<value>2012-07-17</value>
+		</property>
+		<property name="addEndTime">
+			<value>2012-07-17</value>
+		</property>
+		<property name="isAddData">
+			<value>0</value>
+		</property>
+	</bean>
+</beans>

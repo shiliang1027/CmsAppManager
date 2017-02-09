@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.report.alarmstatforexcel.dao.AlarmStatForExcelDAOImp">
+	
+    <insert id="sheet1" parameterType="map">
+        <![CDATA[
+        insert into TMP_ALARMCOMPSTAT
+  (spec_name,
+   num_type,
+   type,
+   alarmregion,
+   alarmseverity,
+   stattime,
+   total_num)
+  select spec_name,
+         '工单' as num_type,
+         x.servicelevel,
+         x.alarmregion,
+         x.alarmseverity,
+         ${stattime} as stattime,
+         x.totalnum as num
+    from (select x.spec_name,
+                 x.servicelevel,
+                 x.alarmseverity,
+                 x.alarmregion,
+                 sum(x.total) as totalnum
+            from (select spec_name,
+                         x.servicelevel,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from TA_REALALARM x, tr_net_spec b
+                   where x.specialty = b.spec_id
+                     and spec_name in ('传输网', 'ATM')
+                     and x.servicelevel is not null
+                     and ifabnormal=0
+										 and sheetno is not null
+                     and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+                   group by spec_name,
+                            x.servicelevel,
+                            x.alarmseverity,
+                            x.alarmregion
+                  union all
+                  select spec_name,
+                         x.servicelevel,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from ta_historyalarm_2014_05 x, tr_net_spec b
+                   where x.specialty = b.spec_id
+                     and spec_name in ('传输网', 'ATM')
+                     and x.servicelevel is not null
+                     and ifabnormal=0
+										 and sheetno is not null
+                     and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+                   group by spec_name,
+                            x.servicelevel,
+                            x.alarmseverity,
+                            x.alarmregion) x
+           group by spec_name,
+                    x.servicelevel,
+                    x.alarmseverity,
+                    x.alarmregion) x
+        ]]>
+    </insert>
+    <insert id="sheet2" parameterType="map">
+        <![CDATA[
+        insert into TMP_ALARMCOMPSTAT
+  (spec_name,
+   num_type,
+   type,
+   alarmregion,
+   alarmseverity,
+   stattime,
+   total_num)
+  select spec_name as spec_name,
+         '工单' as num_type,
+         x.equipmentclass,
+         x.alarmregion,
+         x.alarmseverity,
+         ${stattime} as stattime,
+         x.totalnum as num
+    from (select x.specialty,
+                 x.spec_name,
+                 x.serv_sys_name,
+                 x.equipmentclass,
+                 x.alarmseverity,
+                 x.alarmregion,
+                 sum(x.total) as totalnum
+            from (select x.specialty,
+                         b.spec_name,
+                         c.serv_sys_name,
+                         x.equipmentclass,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from TA_REALALARM   x,
+                         tr_net_spec    b,
+                         tr_buss_system c,
+                         tr_mo_type     f
+                   where x.equipmentclass = f.mo_type_name
+                     and f.sub_spec_id = c.serv_sys_id
+                     and c.spec_id = b.spec_id
+                     and x.equipmentclass is not null
+                     and ifabnormal=0
+									   and sheetno is not null
+                     and spec_name in ('移动核心网',
+                                       '固定交换网',
+                                       'IP互联网',
+                                       '无线网',
+                                       'IP承载网')
+                     and x.daltime between ${stattime} - 3600 * 24 and
+                         ${stattime}
+                   group by x.specialty,
+                            b.spec_name,
+                            c.serv_sys_name,
+                            x.equipmentclass,
+                            x.alarmseverity,
+                            x.alarmregion
+                  union all
+                  select x.specialty,
+                         b.spec_name,
+                         c.serv_sys_name,
+                         x.equipmentclass,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from ta_historyalarm_2014_05 x,
+                         tr_net_spec             b,
+                         tr_buss_system          c,
+                         tr_mo_type              f
+                   where x.equipmentclass = f.mo_type_name
+                     and f.sub_spec_id = c.serv_sys_id
+                     and c.spec_id = b.spec_id
+                     and x.equipmentclass is not null
+                     and ifabnormal=0
+									   and sheetno is not null
+                     and spec_name in ('移动核心网',
+                                       '固定交换网',
+                                       'IP互联网',
+                                       '无线网',
+                                       'IP承载网')
+                     and x.daltime between ${stattime} - 3600 * 24 and
+                         ${stattime}
+                   group by x.specialty,
+                            b.spec_name,
+                            c.serv_sys_name,
+                            x.equipmentclass,
+                            x.alarmseverity,
+                            x.alarmregion) x
+           group by x.specialty,
+                    x.spec_name,
+                    x.equipmentclass,
+                    x.alarmseverity,
+                    x.alarmregion) x
+        ]]>
+    </insert>
+    <insert id="sheet3" parameterType="map">
+        <![CDATA[
+        insert into TMP_ALARMCOMPSTAT
+  (spec_name,
+   num_type,
+   type,
+   alarmregion,
+   alarmseverity,
+   stattime,
+   total_num)
+  select spec_name as spec_name,
+         '工单' as num_type,
+         x.serv_sys_name,
+         x.alarmregion,
+         x.alarmseverity,
+         ${stattime} as stattime,
+         x.totalnum as num
+    from (select x.specialty,
+                 x.spec_name,
+                 x.serv_sys_name,
+                 x.alarmseverity,
+                 x.alarmregion,
+                 sum(x.total) as totalnum
+            from (select x.specialty,
+                         b.spec_name,
+                         c.serv_sys_name,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from TA_REALALARM   x,
+                         tr_net_spec    b,
+                         tr_buss_system c,
+                         tr_mo_type     f
+                   where x.equipmentclass = f.mo_type_name
+                     and f.sub_spec_id = c.serv_sys_id
+                     and c.spec_id = b.spec_id
+                     and x.equipmentclass is not null
+                     and ifabnormal=0
+									   and sheetno is not null
+                     and spec_name in ('移动核心网', '固定交换网', 'IP承载网')
+                     and x.daltime between ${stattime} - 3600 * 24 and
+                         ${stattime}
+                   group by x.specialty,
+                            b.spec_name,
+                            c.serv_sys_name,
+                            x.alarmseverity,
+                            x.alarmregion
+                  union all
+                  select x.specialty,
+                         b.spec_name,
+                         c.serv_sys_name,
+                         x.alarmseverity,
+                         x.alarmregion,
+                         count(1) as total
+                    from ta_historyalarm_2014_05 x,
+                         tr_net_spec             b,
+                         tr_buss_system          c,
+                         tr_mo_type              f
+                   where x.equipmentclass = f.mo_type_name
+                     and f.sub_spec_id = c.serv_sys_id
+                     and c.spec_id = b.spec_id
+                     and x.equipmentclass is not null
+                     and ifabnormal=0
+									   and sheetno is not null
+                     and spec_name in ('移动核心网', '固定交换网', 'IP承载网')
+                     and x.daltime between ${stattime} - 3600 * 24 and
+                         ${stattime}
+                   group by x.specialty,
+                            b.spec_name,
+                            c.serv_sys_name,
+                            x.alarmseverity,
+                            x.alarmregion) x
+           group by x.specialty,
+                    x.spec_name,
+                    x.serv_sys_name,
+                    x.alarmseverity,
+                    x.alarmregion) x
+        ]]>
+    </insert>
+    <insert id="sheet4" parameterType="map">
+        <![CDATA[
+        insert into TMP_ALARMCOMPSTAT
+  (spec_name,
+   num_type,
+   type,
+   alarmregion,
+   alarmseverity,
+   stattime,
+   total_num)
+  select nename as spec_name,
+         '工单' as num_type,
+         nename as type,
+         nename as alarmregion,
+         alarmseverity,
+         ${stattime} as stattime,
+         sum(x.total) as totalnum
+    from (select x.nename, x.alarmseverity, count(1) as total
+            from TA_REALALARM x
+           where x.nename in ('济南TSH1',
+                              '济南TSH3',
+                              '济南TSL2',
+                              '青岛TS2',
+                              '青岛TS3',
+                              '淄博TS',
+                              '济南四里村省网MRS',
+                              '济南四里村省网SSP',
+                              '济南四里村省网SCP1',
+                              '济南四里村省网SCP2',
+                              '济南四里村省网SCP3',
+                              '济南四里村省网一号双机SCP1',
+                              '济南四里村省网一号双机平台SCP2',
+                              '济南四里村省网SS',
+                              '济南王舍人省网SS',
+                              '济南四里村省网SG',
+                              '济南王舍人省网SG',
+                              '济南四里村省网SDC',
+                              '济南王舍人省网SDC',
+                              '固网HSTP')
+             and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+             and ifabnormal=0
+						 and sheetno is not null
+           group by x.nename, x.alarmseverity
+          union all
+          select x.nename, x.alarmseverity, count(1) as total
+            from TA_REALALARM x
+           where x.nename in ('济南TSH1',
+                              '济南TSH3',
+                              '济南TSL2',
+                              '青岛TS2',
+                              '青岛TS3',
+                              '淄博TS',
+                              '济南四里村省网MRS',
+                              '济南四里村省网SSP',
+                              '济南四里村省网SCP1',
+                              '济南四里村省网SCP2',
+                              '济南四里村省网SCP3',
+                              '济南四里村省网一号双机SCP1',
+                              '济南四里村省网一号双机平台SCP2',
+                              '济南四里村省网SS',
+                              '济南王舍人省网SS',
+                              '济南四里村省网SG',
+                              '济南王舍人省网SG',
+                              '济南四里村省网SDC',
+                              '济南王舍人省网SDC',
+                              '固网HSTP')
+             and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+             and ifabnormal=0
+					   and sheetno is not null
+           group by x.nename, x.alarmseverity) x
+   group by x.nename, x.alarmseverity
+        ]]>
+    </insert>
+    <insert id="sheet5" parameterType="map">
+        <![CDATA[
+        insert into TMP_ALARMCOMPSTAT
+  (spec_name,
+   num_type,
+   type,
+   alarmregion,
+   alarmseverity,
+   stattime,
+   total_num)
+  select '移动核心网' as spec_name,
+         '工单' as num_type,
+         '一级网' as type,
+         x.vendor || x.equipmentclass as alarmregion,
+         x.alarmseverity,
+         ${stattime} as stattime,
+         sum(x.total) as totalnum
+    from (select x.equipmentclass,
+                 x.vendor,
+                 x.alarmseverity,
+                 count(1) as total
+            from TA_REALALARM x
+           where x.equipmentclass = '移动网HSTP'
+             and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+             and ifabnormal=0
+						 and sheetno is not null
+           group by x.equipmentclass, x.vendor, x.alarmseverity
+          union all
+          select x.equipmentclass,
+                 x.vendor,
+                 x.alarmseverity,
+                 count(1) as total
+            from ta_historyalarm_2014_05 x
+           where x.equipmentclass = '移动网HSTP'
+             and x.daltime between ${stattime} - 3600 * 24 and ${stattime}
+             and ifabnormal=0
+						 and sheetno is not null
+           group by x.equipmentclass, x.vendor, x.alarmseverity) x
+   group by x.equipmentclass, x.vendor, x.alarmseverity
+        ]]>
+    </insert>
+    
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.weather.dao.WeatherDAOImp">
+	<select id="findCitys" resultType="map">
+		select city_id as "city_id",city_name as "city_name" from tab_city where parent_id='00' and is_szx=0
+	</select>
+	<insert id="insertWeather" parameterType="map">
+		insert into tab_city_weather(city_id,weather_date,weather_date_detail,daypicture,nightpicture,weathers,winds,temperatures) values(#{city_id},#{weather_date},#{weather_date_detail},#{daypicture},#{nightpicture},#{weathers},#{winds},#{temperatures})
+	</insert>
+	<delete id="deleteWeather">
+	    delete from tab_city_weather
+	</delete>
+	<update id="updateWeather" parameterType="map">
+	    update tab_city_weather set weather_date=#{weather_date},weather_date_detail=#{weather_date_detail},daypicture=#{daypicture},nightpicture=#{nightpicture},weathers=#{weathers},winds=#{winds},temperatures=#{temperatures} where city_id=#{city_id} and sque=#{sque}
+	</update>
+</mapper>

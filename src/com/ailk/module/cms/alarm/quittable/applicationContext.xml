@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer"
+		init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path"
+			value="classpath:com/ailk/module/cms/alarm/quittable/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+	<!-- 导入spring公共配置 -->
+	<import resource="classpath:conf/applicationContext_public.xml" />
+	<!-- Properties -->
+	<bean id="propertyplace"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:conf/system.properties</value>
+				<value>classpath:com/ailk/module/cms/alarm/quittable/app.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 告警关联统计数据层 -->
+	<bean id="cms_alarm_quittable_QuitServiceDao"
+		class="com.ailk.module.cms.alarm.quittable.dao.QuitServiceDaoImp"
+		parent="baseDao" />
+	<!-- 告警关联统计业务层 -->
+	<bean id="cms_alarm_quittable_QuitServiceServ"
+		class="com.ailk.module.cms.alarm.quittable.serv.QuitServiceServImp">
+		<property name="quitServiceDao">
+			<ref local="cms_alarm_quittable_QuitServiceDao" />
+		</property>
+	</bean>
+</beans>

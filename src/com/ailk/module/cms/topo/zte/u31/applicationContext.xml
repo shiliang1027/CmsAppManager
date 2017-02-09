@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer" init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path" value="classpath:com/ailk/module/cms/topo/zte/u31/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+	<!-- 导入spring公共配置 -->
+	<import resource="classpath:conf/applicationContext_public.xml" />
+	<!-- Properties -->
+	<bean id="propertyplaceApp" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+		<property name="ignoreUnresolvablePlaceholders" value="true" /> 
+		<property name="locations">
+			<list>
+				<value>classpath:com/ailk/module/cms/topo/zte/u31/app.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 告警关联统计数据层 -->
+	<bean id="cms_topo_zte_ZteDAOImp" class="com.ailk.module.cms.topo.zte.u31.dao.ZteDAOImp" parent="baseDao" />
+	<!-- 告警关联统计业务层 -->
+	<bean id="cms_topo_zte_ZteServImp" class="com.ailk.module.cms.topo.zte.u31.serv.ZteServImp">
+		<property name="zteDAOImp">
+			<ref local="cms_topo_zte_ZteDAOImp" />
+		</property>
+		<property name="filePath">
+			<value>${filePath}</value>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<!-- 配置log4j -->
+	<bean id="log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer" init-method="start" destroy-method="destroy" lazy-init="false">
+		<property name="config_path" value="classpath:com/ailk/module/cms/scene/usercountstat/log4j.properties"></property>
+		<property name="watch_delay" value="30000"></property>
+	</bean>
+
+	<!-- Properties -->
+	<bean id="propertyplace" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:conf/system.properties</value>
+				<value>classpath:com/ailk/module/cms/scene/usercountstat/app.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 导入spring公共配置 -->
+	<import resource="classpath:conf/applicationContext_public.xml" />
+	
+	
+	<!-- corba 配置 -->
+	<bean id="abims_pmManagerSigService_pm_scene"
+		class="com.linkage.system.utils.corba.CorbaClientCreator">
+		<property name="creatorName" value="pmManagerSigService"></property>
+		<property name="corbaService" ref="corbaService"></property>
+		<property name="targetLocaltion" 
+			value="AreaPMManager_0CMQ_Poa_DS.PoaName/AreaPMManager_0CMQ_DS.ObjectName">
+		</property>
+		<property name="targetInterface"
+			value="com.linkage.system.corbabus.CorbaBusAdpater">
+		</property>
+	</bean>
+	
+	<bean id="abims_pmManagerSigService_msgSupport_pm_scene"
+		class="com.linkage.system.utils.corba.CorbaMsgSupport">
+		<property name="corbaBusAdpater"
+			ref="abims_pmManagerSigService_pm_scene">
+		</property>
+		<property name="charset" value="ISO8859-1"></property>
+	</bean>
+	
+	<!-- 场景用户数统计数据层 -->
+	<bean id="cms_scene_usercountstat_SceneUserCountStatDAO" class="com.ailk.module.cms.scene.usercountstat.dao.SceneUserCountStatDAOImp" parent="baseDao" />
+	
+	<!-- 场景用户数统计业务层 -->
+	<bean id="cms_scene_usercountstat_SceneUserCountStatServ" class="com.ailk.module.cms.scene.usercountstat.serv.SceneUserCountStatServImp">
+		<property name="sceneUserCountStatDao">
+			<ref local="cms_scene_usercountstat_SceneUserCountStatDAO" />
+		</property>
+		
+		<property name="corbaUrl">
+			<value>/Pm/abims/realdata/scenemodata</value>
+		</property>
+		
+		<property name="pmCorba">
+			<ref local="abims_pmManagerSigService_msgSupport_pm_scene" />
+		</property>
+		
+	</bean>
+</beans>

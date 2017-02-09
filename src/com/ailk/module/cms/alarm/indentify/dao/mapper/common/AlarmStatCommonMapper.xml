@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.alarm.indentify.dao.AlarmStatDAOImp">
+
+	<sql id="queryColumns">
+		alarmuniqueid as "alarmuniqueid",
+		nename as "nename",
+		equipmentclass as "equipmentclass",
+		alarmtext as "alarmtext",
+		daltime as "daltime",
+		eventtime as "eventtime",
+		alarmregion as "alarmregion",
+		vendor as "vendor",
+		alarmseverity as "alarmseverity",
+		alarmstatus as "alarmstatus",
+		alarmtitle as "alarmtitle",
+		canceltime as "canceltime",
+		vendorseverity as "vendorseverity",
+		locatenestatus as "locatenestatus",
+		destsignal as "destsignal",
+		destnename as "destnename",
+		sheetsendstatus as "sheetsendstatus"
+	</sql>
+
+	<select id="statAlarm" parameterType="map" resultType="map">
+		select <include refid="queryColumns"/> from ta_realalarm
+		<![CDATA[
+			where daltime >= #{st}
+			and daltime < #{et}
+			and ${whereConds}
+			union all
+		]]>
+		select <include refid="queryColumns"/> from ${his_tab}
+		<![CDATA[
+			where daltime >= #{st}
+			and daltime < #{et}
+			and ${whereConds}
+		]]>
+	</select>
+
+	<insert id="batchUpdate" parameterType="map">
+		<![CDATA[
+			insert into ${stat_tab}
+			  (
+			  	alarmuniqueid,
+			   	gather_time,
+			   	nename,
+			   	equipmentclass,
+			   	alarmtext,
+			   	daltime,
+			   	eventtime,
+			   	alarmregion,
+			   	vendor,
+			   	alarmseverity,
+			   	alarmstatus,
+			   	alarmtitle,
+			   	canceltime,
+			   	cancelinterval,
+			   	vendorseverity,
+			   	locatenestatus,
+			   	destsignal,
+			   	destnename,
+			   	sheetsendstatus
+			  )
+			values
+			  (
+			  	#{alarmuniqueid},
+			   	#{gather_time},
+			   	#{nename},
+			   	#{equipmentclass},
+			   	#{alarmtext},
+			   	#{daltime},
+			   	#{eventtime},
+			   	#{alarmregion},
+			   	#{vendor},
+			   	#{alarmseverity},
+			   	#{alarmstatus},
+			   	#{alarmtitle},
+			   	#{canceltime},
+			   	#{cancelinterval},
+			   	#{vendorseverity},
+			   	#{locatenestatus},
+			   	#{destsignal},
+			   	#{destnename},
+			   	#{sheetsendstatus}
+			  )
+		]]>
+	</insert>
+
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-destroy-method="destroy" default-init-method="start">
+	<!-- Properties -->
+	<bean id="propertyplaceSystem" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+			</list>
+		</property>
+	</bean>
+	 <!-- Corba 
+	 <bean id="corbaService" class="com.linkage.system.utils.corba.CorbaService" lazy-init="false">
+		<property name="corbaServiceName" value="ubm_CorbaService"></property>
+		<property name="namingServiceLoc" value="${corba.NSLoc}"></property>
+		<property name="server_host" value="${app.host}"></property>
+		<property name="server_port" value="${app.port}"></property>
+		<property name="corba_charset" value="ISO8859-1"></property>
+		<property name="corba_wcharset" value="UCS-2"></property>
+	</bean>-->
+	<!-- DataBase -->
+	 <bean id="mainDataSource" class="com.linkage.system.jdbc.CommonDataSource" init-method="init" lazy-init="false">
+		<property name="driver" value="${jdbc.driverClassName}" />
+		<property name="driverUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="alias" value="xml-test" />
+		<property name="maximumConnectionCount" value="10" />
+		<property name="minimumConnectionCount" value="5" />
+		<property name="delegateProperties" value="user=${jdbc.username},password=${jdbc.password},CHARSET=GBK" />
+		<property name="simultaneousBuildThrottle" value="10" />
+		<property name="houseKeepingTestSql" value="select 1 from dual" />
+		<property name="maximumActiveTime" value="3600000"></property>
+		<property name="initsql">
+			<value>select 1 from dual</value>
+		</property>
+	</bean>
+	<!-- MyBatis -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mainDataSource" />
+		<property name="configLocation" value="classpath:jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/**/mapper/common/*Mapper.xml
+				</value>
+				<value>
+					classpath*:com/ailk/**/mapper/oracle/*Mapper.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="sqlSessionTemplate" class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	<bean id="baseDao" class="com.linkage.system.jdbc.jpa.JPABaseDAO" abstract="true">
+		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"></property>
+	</bean>
+</beans>

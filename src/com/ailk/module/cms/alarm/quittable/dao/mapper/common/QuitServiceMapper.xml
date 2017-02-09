@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="com.ailk.module.cms.alarm.quittable.dao.QuitServiceDaoImp">
+	
+	<!-- 获得所有的地市 -->
+	<select id="getCity" resultType="hashmap">
+		select city_id,city_name 
+		from tab_city
+		where city_layer = 2 
+		and city_id != 000
+		order by city_id
+	</select>
+
+	<select id="getExistData" resultType="int">
+		select count(1)
+		from tt_btskpi_data
+	</select>
+	<insert id="insertQuitTblInfo" parameterType="hashmap">
+		<![CDATA[
+		insert into tt_btskpi_data (city_id,city_name,update_lasttime,column_en,column_type,column_unit,perf_value) 
+				values ('${cityId}','${cityName}',${updateLasttime},'${columnEn}',${columnType},'${columnUnit}','${perfValue}')
+		]]>	
+	</insert>
+	
+	<insert id="updateQuitTblInfo" parameterType="hashmap">
+		<![CDATA[
+			update tt_btskpi_data
+			set update_lasttime=${updateLasttime},
+				perf_value='${perfValue}'
+			where city_id='${cityId}' and column_en='${columnEn}'
+		]]>	
+	</insert>
+	
+	<!-- 获得GSM 宏站退服数  (退服统计的是告警数)-->
+	<select id="getBtsHzTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE COMBTYPE = #{hz}
+   			AND LOCATENESTATUS = 2
+   			AND ALARMSTATUS = 1
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'BTS'
+   			AND ALARMSUBTYPE = '69'
+   			AND
+           	<![CDATA[
+         		DALTIME >= #{startTime}
+            	AND
+            	DALTIME <= #{endTime}
+      		]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得GSM 宏站数 (网元数,以下其他指标与该指标相同)-->
+	<select id="getBtsHzCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT C.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TR_MO_INFO A, TR_MO_ATTR B, TAB_CITY C
+ 		WHERE A.CITY_ID = C.CITY_ID
+   			AND A.MO_ID = B.MO_ID
+   			AND A.WORK_STAT = 2
+   			AND A.MO_TYPE_ID = 16
+   			AND B.ATTR_VALUE = #{hz}
+   			AND B.MO_TYPE_ID = 16
+   			AND B.ATTR_TYPE_ID = 20
+ 		GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得GSM 微蜂窝退服数 -->
+	<select id="getBtsWfwTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE COMBTYPE LIKE '%${wfw}'
+   			AND LOCATENESTATUS = 2
+   			AND ALARMSTATUS = 1
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'BTS'
+   			AND ALARMSUBTYPE = '69'
+   			AND
+           <![CDATA[
+         		DALTIME >= #{startTime}
+            	AND
+            	DALTIME <= #{endTime}
+      		]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得GSM 微蜂窝数 -->
+	<select id="getBtsWfwCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT C.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TR_MO_INFO A, TR_MO_ATTR B, TAB_CITY C
+ 		WHERE A.CITY_ID = C.CITY_ID
+   			AND A.MO_ID = B.MO_ID
+   			AND A.WORK_STAT = 2
+   			AND A.MO_TYPE_ID = 16
+   			AND B.MO_TYPE_ID = 16
+   			AND B.ATTR_VALUE LIKE '%${wfw}'
+   			AND B.ATTR_TYPE_ID = 20
+		GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得GSM小区退服数 -->
+	<select id="getCellTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'CELL'
+   			AND ALARMSUBTYPE = '68'
+   			AND
+   			<![CDATA[
+         		DALTIME >= #{startTime}
+            	AND
+            	DALTIME <= #{endTime}
+      		]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得GSM小区数 -->
+	<select id="getCellCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT B.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TR_MO_INFO A, TAB_CITY B
+ 		WHERE A.CITY_ID = B.CITY_ID
+   			AND A.WORK_STAT = 2
+   			AND A.MO_TYPE_ID = 101
+ 		GROUP BY B.CITY_NAME
+	</select>
+	
+	<!-- 获得GSM VIP基站退服数 -->
+	<select id="getVipBtsTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+	  	FROM TA_REALALARM
+	 	WHERE BTSTYPE LIKE '%VIP%'
+	   		AND LOCATENESTATUS = 2
+	   		AND ALARMNEID IS NOT NULL
+	   		AND ALARMSTATUS = 1
+	   		AND ALARMNETYPE = 'BTS'
+	   		AND ALARMSUBTYPE = '69'
+	   		AND
+   			<![CDATA[
+         		DALTIME >= #{startTime}
+            	AND
+            	DALTIME <= #{endTime}
+      		]]>
+	 	GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得小区载波退服数 -->
+	<select id="getCellZpTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT C.CITY_NAME AS CITY_NAME, SUM(A.ATTR_VALUE) AS COUNT
+  		FROM TR_MO_ATTR A, TR_MO_INFO B, TAB_CITY C
+ 		WHERE A.MO_ID = B.MO_ID
+   			AND B.CITY_ID = C.CITY_ID
+   			AND EXISTS (SELECT DISTINCT ALARMNEID
+                       FROM TA_REALALARM
+                       WHERE ALARMNEID = A.MO_ID
+                            AND ALARMSTATUS = 1
+                            AND LOCATENESTATUS = 2
+                            AND ALARMNETYPE = 'CELL'
+                            AND ALARMSUBTYPE = '68'
+                            AND
+   							<![CDATA[
+         						DALTIME >= #{startTime}
+            					AND
+            					DALTIME <= #{endTime}
+      						]]>)
+   			AND A.MO_TYPE_ID = 101
+   			AND A.ATTR_TYPE_ID = 52
+     	GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得GSM 基站人工退服数 -->
+	<select id="getBtsRgbsTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'BTS'
+   			AND ALARMTITLE LIKE '%${jzexception}%'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得GSM 小区人工退服数 -->
+	<select id="getCellRgbsTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMTITLE LIKE '%Abnormal Condition Alarm%'
+   			AND ALARMNETYPE = 'CELL'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD  宏站退服数 -->
+	<select id="getNodebHzTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT 
+  		FROM TA_REALALARM
+ 		WHERE COMBTYPE = #{hz}
+   			AND ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'NodeB'
+   		    AND ALARMSUBTYPE = '71'
+   		    AND
+   		    <![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD 宏站数 -->
+	<select id="getNodebHzCount" resultType="hashmap"
+		parameterType="hashmap">
+			SELECT C.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  	     	FROM TR_MO_INFO A, TR_MO_ATTR B, TAB_CITY C
+ 			WHERE A.MO_ID = B.MO_ID
+   				AND A.CITY_ID = C.CITY_ID
+   				AND A.WORK_STAT = 2
+ 				AND A.MO_TYPE_ID = 28
+ 				AND B.ATTR_VALUE = #{hz}
+ 				AND B.MO_TYPE_ID = 28
+ 			    AND B.ATTR_TYPE_ID = 24
+ 			GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得TD 微蜂窝退服数 -->
+	<select id="getNodebWfwTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE COMBTYPE LIKE '%${wfw}'
+   			AND ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'NodeB'
+   			AND ALARMSUBTYPE = '71'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD 微蜂窝数 -->
+	<select id="getNodebWfwCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT C.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TR_MO_INFO A, TR_MO_ATTR B, TAB_CITY C
+ 		WHERE A.CITY_ID = C.CITY_ID
+   			AND A.MO_ID = B.MO_ID
+   			AND B.ATTR_VALUE LIKE '%${wfw}'
+   			AND A.WORK_STAT = 2
+   			AND A.MO_TYPE_ID = 28
+   			AND B.ATTR_TYPE_ID = 24
+ 		GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得TD小区退服数 -->
+	<select id="getUcellTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'UTRANCELL'
+   			AND ALARMSUBTYPE = '70'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD小区数 -->
+	<select id="getUcellCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT B.CITY_NAME AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TR_MO_INFO A, TAB_CITY B
+ 		WHERE A.CITY_ID = B.CITY_ID
+   			AND A.WORK_STAT = 2
+   			AND A.MO_TYPE_ID = 102
+ 		GROUP BY B.CITY_NAME
+	</select>
+	
+	<!-- 获得TD VIP基站退服数 -->
+	<select id="getVipNodebTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+   			AND LOCATENESTATUS = 2
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'NodeB'
+   			AND ALARMSUBTYPE = '71'
+   			AND BTSTYPE LIKE '%VIP%'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD小区载频退服数 -->
+	<select id="getUcellZpTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT C.CITY_NAME AS CITY_NAME, SUM(A.ATTR_VALUE) AS COUNT
+  		FROM TR_MO_ATTR A, TR_MO_INFO B, TAB_CITY C
+ 		WHERE A.MO_ID = B.MO_ID
+   			AND B.CITY_ID = C.CITY_ID
+   			AND EXISTS (SELECT DISTINCT ALARMNEID
+						FROM TA_REALALARM
+                    	WHERE ALARMNEID = A.MO_ID 
+                      		AND ALARMSTATUS = 1
+                      		AND LOCATENESTATUS = 2
+                       		AND ALARMNETYPE = 'UTRANCELL'
+                      		AND ALARMSUBTYPE = '70'
+                      		AND 
+                      		<![CDATA[
+								DALTIME >= #{startTime}
+								AND
+								DALTIME <= #{endTime}
+							]]>)
+   			AND A.MO_TYPE_ID = 102
+   			AND A.ATTR_TYPE_ID = 76
+ 		GROUP BY C.CITY_NAME
+	</select>
+	
+	<!-- 获得TD 基站人工退服数 -->
+	<select id="getNodebRgbsTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE ALARMSTATUS = 1
+    		AND LOCATENESTATUS = 2
+    		AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'NodeB'
+   			AND ALARMTITLE LIKE '%${jzexception}%'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得TD 小区人工退服数 -->
+	<select id="getUcellRgbsTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(1) AS COUNT
+  		FROM TA_REALALARM
+ 		WHERE LOCATENESTATUS = 2
+   			AND ALARMSTATUS = 1
+   			AND ALARMNEID IS NOT NULL
+   			AND ALARMNETYPE = 'UTRANCELL'
+   			AND ALARMTITLE LIKE '%Abnormal Condition Alarm%'
+   			AND
+   			<![CDATA[
+				DALTIME >= #{startTime}
+				AND
+				DALTIME <= #{endTime}
+			]]>
+ 		GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得停电退服数 -->
+	<select id="getPowerFailureTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${power_failure})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<!-- 获得低压退服数 -->
+	<select id="getVoltageLowTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${voltage_low})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<select id="getOnceDownPowerTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${once_down_power})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<select id="getWaterSoakTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${water_soak})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<select id="getSmogTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${smog})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<select id="getTemperatureHighTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE IN (${temperature_high})
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+	<select id="getTemperatureExtraHighTfsCount" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT ALARMREGION AS CITY_NAME, COUNT(DISTINCT NENAME) AS COUNT
+  		FROM  TA_REALALARM
+        WHERE ALARMSTATUS = 1
+              AND ALARMTITLE = #{temperature_extra_high}
+              AND
+              <![CDATA[
+					DALTIME >= #{startTime}
+					AND
+					DALTIME <= #{endTime}
+			  ]]>
+     	GROUP BY ALARMREGION
+	</select>
+	
+</mapper>

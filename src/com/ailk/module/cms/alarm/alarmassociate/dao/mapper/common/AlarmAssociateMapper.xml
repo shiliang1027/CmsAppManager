@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.alarm.alarmassociate.dao.AlarmAssociateDAOImp">
+	<select id="getSubAlarmNum" parameterType="map" resultType="map">
+		<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select b.specialty, count(a.serialno) as sl
+		          from ta_realalarm_relation a, ta_realalarm b
+		         where a.relationtype in (1, 2, 5)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty
+		        union all
+		        select b.specialty, count(a.serialno) as sl
+		          from ${relationHis} a, ${alarmHis} b
+		         where a.relationtype in (1, 2, 5)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty)
+		 group by specialty
+		]]>
+	</select>
+	<select id="getOriginalAlarmNum" parameterType="map" resultType="map">
+		<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select specialty, count(a.serialno) as sl
+		          from ta_realalarm_relation a, ta_realalarm b
+		         where a.relationtype in (3, 4)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty
+		        union all
+		        select specialty, count(a.serialno) as sl
+		          from ${relationHis} a, ${alarmHis} b
+		         where a.relationtype in (3, 4)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	<select id="getSheetAlarmNum" parameterType="map" resultType="map">
+		<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select b.specialty, count(1) as sl
+		          from ta_fault_dispatch a
+		         inner join ta_realalarm b on a.serialno = b.alarmuniqueid
+		         where a.sourceflg = 20
+						 and b.daltime >= ${startTime}
+		             	 and b.daltime <= ${endTime}
+		         group by b.specialty
+		        union all
+		        select b.specialty, count(1) as sl
+		          from ta_fault_dispatch a
+		         inner join ${alarmHis} b on a.serialno = b.alarmuniqueid
+		         where a.sourceflg = 20
+						 and b.daltime >= ${startTime}
+		             	 and b.daltime <= ${endTime}
+		         group by b.specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	
+	<select id="getDeriveAlarmNum" parameterType="map" resultType="map">
+			<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select specialty, count(distinct a.paserialno) as sl
+		          from ta_realalarm_relation a, ta_realalarm b
+		         where a.relationtype in (3, 4)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty
+		        union all
+		        select specialty, count(distinct a.paserialno) as sl
+		          from ${relationHis} a, ${alarmHis} b
+		         where a.relationtype in (3, 4)
+						 and a.daltime >= ${startTime}
+		             	 and a.daltime <= ${endTime}
+		           and a.serialno = b.alarmuniqueid
+		         group by specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	
+	<select id="getRelationAlarmNum" parameterType="map" resultType="map">
+		<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select b.specialty, count(a.uniqueid) as sl
+		          from ta_relation_act_alarm a
+		         inner join ta_realalarm b on a.uniqueid = b.alarmuniqueid
+		         where b.daltime >= ${startTime}
+		         and b.daltime <= ${endTime}
+		         and (b.systemname='数据网管' or b.alarmseverity=4)
+		         group by specialty
+		        union all
+		        select b.specialty, count(a.uniqueid) as sl
+		          from ta_relation_his_alarm a
+		         inner join ${alarmHis} b on a.uniqueid =b.alarmuniqueid
+		         where b.daltime >= ${startTime}
+		         and b.daltime <= ${endTime}
+		         and (b.systemname='数据网管' or b.alarmseverity=4)
+		         group by specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	
+	<select id="getRelationInnerAlarmNum" parameterType="map" resultType="map">
+		<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select specialty, count(alarmuniqueid) as sl
+		          from ta_realalarm
+		         where systemname != '数据网管' 
+		           and alarmseverity!=4
+		           and daltime >= ${startTime}
+		           and daltime <= ${endTime}
+		         group by specialty
+		        union all
+		        select specialty, count(alarmuniqueid) as sl
+		          from ${alarmHis}
+		         where systemname != '数据网管' 
+		           and alarmseverity!=4
+		           and daltime >= ${startTime}
+		           and daltime <= ${endTime}
+		         group by specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	
+	<select id="getTotalAlarmNum" parameterType="map" resultType="map">
+			<![CDATA[
+		select specialty as "specialty", sum(sl) as "sl"
+		  from (select specialty, count(1) as sl
+		          from ta_realalarm aa
+		         where aa.alarmseverity in (1, 2, 3)
+		           and aa.locatenestatus = 2
+						 and aa.daltime >= ${startTime}
+		             	 and aa.daltime <= ${endTime}
+		         group by specialty
+		        union all
+		        select specialty, count(1) as sl
+		          from ${alarmHis} aa
+		         where aa.alarmseverity in (1, 2, 3)
+		           and aa.locatenestatus = 2
+						 and aa.daltime >= ${startTime}
+		             	 and aa.daltime <= ${endTime}
+		         group by specialty)
+		 group by specialty
+		 ]]>
+	</select>
+	
+	<insert id="saveRelationAnalysisStat" parameterType="map">
+		insert into ${relationanalysis} 
+	    	(spec_id, spec_name, sub_alarm_num, original_alarm_num, sheet_alarm_num, derive_alarm_num, 
+		     relation_alarm_num, total_alarm_num, gather_time)
+		values 
+			(#{specialty}, #{name},  #{subAlarmNum},  #{originalAlarmNum}, #{sheetAlarmNum}, #{deriveAlarmNum},
+			 #{relationAlarmNum}, #{totalAlarmNum}, #{gatherTime})
+	</insert>
+	
+	<update id="createAssociateTabList" parameterType="map">
+		create table ${alarmHis}
+		(
+			spec_id            number(3)                       not null,
+		   	spec_name          varchar2(50),
+		  	sub_alarm_num      number(10),
+			original_alarm_num number(10),
+			sheet_alarm_num    number(10),
+			derive_alarm_num   number(10),
+			relation_alarm_num number(10),
+			total_alarm_num    number(10),
+			gather_time        number(10)                      not null,
+			primary key (spec_id, gather_time)
+		) tablespace tbs_report
+	</update>
+	
+</mapper>

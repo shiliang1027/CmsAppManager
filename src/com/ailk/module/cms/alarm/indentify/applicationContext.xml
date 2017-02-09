@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-init-method="start" default-destroy-method="destroy">
+
+	<!-- 动态加载日志配置信息 -->
+	<bean id="cms_alarm_indentify_log4jServer" class="com.linkage.system.extend.log4j.Log4jConfigServer"
+		lazy-init="false">
+		<property name="watch_delay" value="10000"></property>
+		<property name="config_path"
+			value="classpath:com/ailk/module/cms/alarm/indentify/log4j.properties"></property>
+	</bean>
+
+	<bean id="cms_alarm_indentify_AlarmStatDAOImp" class="com.ailk.module.cms.alarm.indentify.dao.AlarmStatDAOImp">
+		<property name="sstmpt">
+			<ref bean="sqlSessionTemplate" />
+		</property>
+	</bean>
+
+	<bean id="cms_alarm_indentify_AlarmStatServImp"
+		class="com.ailk.module.cms.alarm.indentify.serv.AlarmStatServImp">
+		<property name="asd" ref="cms_alarm_indentify_AlarmStatDAOImp"></property>
+		<property name="whereConds"
+			value="alarmtitle in ('CCITT7 DESTINATION INACCESSIBLE','MEDIA GATEWAY UNAVAILABLE','Media Gateway System Down','MEDIA GATEWAY SYSTEM DOWN','MTP3b Route Set Unavailable','MTP3B ROUTE SET UNAVAILABLE','Virtual Media Gateway, GCP Link Down','VIRTUAL MEDIA GATEWAY, GCP LINK DOWN','CCITT7 DESTINATION INACCESSIBLE','SIGNALL. POINT INAC.','PLATFORM SS7 DESTINATION DPC UNREACHABLE','N7 [35] RTE-REP [2]','目的信令点不可访问','MGW退出服务','MTP目的信令点不可达','MTP3/MTP3B目的信令点不可达','M3UA目的实体不可达','SCCP目的信令点禁止','SCCP目的信令点不可达','MTP3B目的信令点不可达','虚拟媒体网关迁移出业务态','MTP3目的信令点不可达','M3UA目的信令点不可达','目的信令点不可达','DSP不可达','MTP-3b目的信令点不可达告警','SCCP目的信令点不可用告警','M3UA目的实体不可访问告警','MTP3B信令点不可达','M3UA信令点不可达','信令点不可达','M3UA DESTINATION INACCESSIBLE') and vendor in ('爱立信','阿尔卡特','华为','大唐') and equipmentclass in ('MSC','HLR','MSC Server','MGW','BSC','STP','RNC') and sendgroupflag = 1"></property>
+	</bean>
+
+</beans>

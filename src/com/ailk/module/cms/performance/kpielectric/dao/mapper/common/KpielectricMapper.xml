@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="com.ailk.module.cms.performance.kpielectric.dao.KpielectricDAOImp">
+	<update id="createKpielectricTab" parameterType="map">
+		create table electric_card_info
+			(
+				record_id  varchar2(32) ,                           
+				number_    varchar2(16) ,                          
+				area_      varchar2(16),                           
+				pdpadd     varchar2(50)
+			) tablespace tbs_report
+	</update>
+	
+	<select id="queryKpielectricList" parameterType="map" resultType="map">
+			<![CDATA[
+				select record_id "record_id",
+			       number_   "number_",
+			       area_     "area_",
+			       pdpadd	"pdpadd"
+			       from eastcom.electric_card_info
+			       where to_date(updatetime,'yyyy-mm-dd hh24:mi:ss')>to_date('${startTime}','yyyy-mm-dd hh24:mi:ss')
+					and pdpadd is not null
+					and number_ is not null
+					and updatetime is not null
+					and area_ is not null
+					and record_id is not null
+		 ]]>
+	</select>
+
+   <insert id="saveKpielectricList" parameterType="map">
+		insert into electric_card_info 
+	    	(record_id, number_, area_,pdpadd)
+		values 
+			(#{record_id}, #{number_},  #{area_}, #{pdpadd})
+	</insert>
+	
+	<update id="createTcpTabList" parameterType="map">
+		create table ${sheetHis}
+			(
+			   city_name            VARCHAR(50)                     not null,
+			   gather_time          NUMBER(13)                      not null,
+			   kpi1                 varchar(10),
+			   kpi2                 varchar(10),
+			   kpi3                 NUMBER(10),
+			   kpi4                 NUMBER(10),
+			   kpi5                 NUMBER(10),
+			   kpi6                  varchar(10),
+			    constraint ${sheetHis} primary key (city_name, gather_time)
+            )
+
+	</update>
+	
+	
+	<update id="createDetailTabList" parameterType="map">
+		create table ${sheetHis}  
+		   (
+		   gather_time          NUMBER(13)                      not null,
+		   city_name            VARCHAR2(50)                    not null,
+		   user_ip              VARCHAR2(15)                    not null
+			)
+
+
+	</update>
+	
+	<select id="queryunlineList" parameterType="map" resultType="map">
+	<![CDATA[
+	    select distinct(user_ip) "user_ip"
+			          from ${oldtab}
+			         where result = 1
+			           and user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			          and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			           and user_ip is not null
+	    
+	 ]]>
+	</select>
+	
+	<select id="queryTcpList" parameterType="map" resultType="map">
+			<![CDATA[
+			
+			select a.online "kpi3", b.total "kpi5", c.down_success "down_success",d.up_success "up_success",e.down_fail "down_fail",f.up_fail "up_fail"
+			  from (select count(distinct user_ip) online
+			          from ${oldtab}
+			         where result = 0
+			           and user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			          and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			           ) a,
+			       
+			       (select count(distinct user_ip) total
+			          from ${oldtab}
+			         where user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			           and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			           ) b,
+			       
+			       (select direction, sum(connect_result_num) down_success
+			          from ${oldtab}
+			         where user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			           and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			           and result = 0
+			           and direction = 1
+			         Group by direction
+			         ) c,
+			       
+			       (select direction, sum(connect_result_num) up_success
+			          from ${oldtab}
+			         where user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			           and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			           and result = 0
+			           and direction = 0
+			         Group by direction
+			         ) d,
+			       
+			       (select direction, sum(connect_result_num) down_fail
+			          from ${oldtab}
+			         where user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			           and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			         and result = 1
+			           and direction = 1
+			         Group by direction
+			         ) e,
+			       
+			       (select direction, sum(connect_result_num) up_fail
+			          from ${oldtab}
+			         where user_ip >= ${start_ip}
+			           and user_ip <= ${end_ip}
+			           and start_time >= #{startTime,jdbcType=TIMESTAMP}
+			           and start_time <= #{endTime,jdbcType=TIMESTAMP}
+			         and result = 1
+			           and direction = 0
+			         Group by direction
+			         ) f
+			
+					
+		    ]]>
+	</select>
+
+   <insert id="saveTcpList" parameterType="map">
+		insert into ${sheetHis} 
+	    	(city_name, gather_time, kpi1, kpi2, kpi3,kpi4,kpi5,kpi6)
+		values 
+			(#{city_name},#{gather_time}, #{kpi1}, #{kpi2},#{kpi3},#{kpi4},#{kpi5},#{kpi6})
+	</insert>
+	
+	
+	  <insert id="saveunlineList" parameterType="map">
+		insert into ${detailTab} 
+	    	(gather_time, city_name, user_ip)
+		values 
+			(#{gather_time},#{city_name}, #{user_ip})
+	</insert>
+	
+	<update id="createBuildingTabList" parameterType="map">
+		create table ${sheetHis}
+			(
+				city_name varchar2(50),
+				apn_name varchar2(255),
+				kpi1 number(5,2),
+				kpi2 number(5,2),
+				kpi3 number(13),
+				kpi4 number(13),
+				kpi5 number(13),
+				gather_time number(13)
+			) tablespace tbs_report
+	</update>
+	
+	<select id="queryBuildingList" parameterType="map" resultType="map">
+			<![CDATA[
+			select apn                             	"apn",
+			       sm_succactpdpctxt_apn_rate      	"kpi1",
+			       sm_maxallcaddr_apn_rate         	"kpi2",
+			       gi_apnuplinkbytes         		"kpi3",
+			       gi_apndownlinkbytes         		"kpi4",
+			       sm_maxnbractpdpctxt_apn 			"kpi5",
+			       scan_start_time                  "gather_time"
+			 from ${sheetHis}
+			where scan_start_time >= ${startTime}
+			  and scan_start_time <= ${endTime}		
+		    ]]>
+	</select>
+	
+	 <insert id="saveBuildingList" parameterType="map">
+		insert into ${sheetHis} 
+	    	(city_name, gather_time, kpi1, kpi2, kpi3,kpi4,kpi5,kpi6)
+		values 
+			(#{city_name},#{gather_time}, #{kpi1}, #{kpi2},#{kpi3},#{kpi4},#{kpi5},#{kpi6})
+	</insert>
+</mapper>

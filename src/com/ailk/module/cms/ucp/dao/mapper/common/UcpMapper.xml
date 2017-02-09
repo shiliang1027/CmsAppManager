@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.ucp.dao.UcpDAOImp">
+	<select id="getDataSetList" parameterType="hashmap" resultType="hashmap">
+		select b.name as "name" from s_dataset_relation a inner join s_data_config b on a.data_id=b.data_id
+		<where>
+			a.dataset_id=${dataset_id}
+		</where>
+	</select>
+	<insert id="savePerfConfigCheck" parameterType="hashmap">
+		insert into d_perf_config_check(task_id,subtask_no,dataset_id,start_time,end_time,data_name) 
+			values(${task_id},${subtask_no},${dataset_id},${start_time},${end_time},'${data_name}')
+	</insert>
+	<insert id="savePerfDataCheck" parameterType="hashmap">
+		insert into d_perf_data_check(task_id,subtask_no,dataset_id,start_time,end_time,erab_nbrhoinc,erab_nbrhoinc_qci,erab_nbrattestab,erab_nbrattestab_qci,erab_nbrreqrelmmeinitnoho,erab_nbrreqrelmmeinitnoho_qci,erab_nbrreqrelenbbyho,erab_nbrreqrelenbbyho_qci) 
+			values(${task_id},${subtask_no},${dataset_id},${start_time},${end_time},${erab_nbrhoinc},${erab_nbrhoinc_qci},${erab_nbrattestab},${erab_nbrattestab_qci},${erab_nbrreqrelmmeinitnoho},${erab_nbrreqrelmmeinitnoho_qci},${erab_nbrreqrelenbbyho},${erab_nbrreqrelenbbyho_qci})
+	</insert>
+</mapper>

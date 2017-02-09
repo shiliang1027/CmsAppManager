@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.ailk.module.cms.report.alarmstatforexcel.dao.AlarmStatForExcelDAOImp">
+    <update id="update1" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '小计')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '小计')
+        ]]>
+    </update>
+    
+    <update id="update2" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM = TOTAL_NUM + 
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '频次重复')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '频次重复')
+    	]]>
+    </update>
+    
+    <update id="update3" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set EXCEP_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '异常')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '异常')
+    	]]>
+    </update>
+    
+    <update id="update4" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set chongfu_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '重复')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '重复')
+    	]]>
+    </update>
+    
+    <update id="update5" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set gongcheng_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工程')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工程')
+    	]]>
+    </update>
+    
+    <update id="update6" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set paidan_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工单')
+ where exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.type = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工单')
+    	]]>
+    </update>
+    
+    <update id="update7" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM = TOTAL_NUM + 
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '频次重复'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '频次重复'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update8" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '小计'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '小计'
+           group by w.type)
+    	]]>
+    </update>
+    <update id="update9" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set EXCEP_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '异常'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '异常'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update10" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set CHONGFU_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '重复'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '重复'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update11" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set GONGCHENG_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工程'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工程'
+           group by w.type)
+    	]]>
+    </update>
+    
+    
+    <update id="update12" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set PAIDAN_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工单'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.type = w.type
+           and w.equipmentclass = v.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = u.spec_name
+           and v.num_type = '工单'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update13" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '小计'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '小计'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update14" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set TOTAL_NUM = TOTAL_NUM + 
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '频次重复'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '频次重复'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update15" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set EXCEP_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '异常'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '异常'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update16" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set chongfu_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '重复'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '重复'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update17" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set GONGCHENG_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '工程'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '工程'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update18" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set PAIDAN_NUM =
+       (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '工单'
+           group by w.type)
+ where exists (select sum(total_num)
+          from TMP_ALARMCOMPSTAT v, TMP_ALARMCOMPSTAT_conf w
+         where  u.alarmregion = w.type
+           and u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.num_type = '工单'
+           group by w.type)
+    	]]>
+    </update>
+    
+    <update id="update19" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set total_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '小计')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '小计')
+    	]]>
+    </update>
+    
+    <update id="update20" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set total_NUM = total_NUM + 
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '频次重复')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '频次重复')
+    	]]>
+    </update>
+    
+    <update id="update21" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set EXCEP_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '异常')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '异常')
+    	]]>
+    </update>
+    
+    <update id="update22" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set CHONGFU_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '重复')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '重复')
+    	]]>
+    </update>
+    
+    
+    <update id="update23" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set GONGCHENG_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '工程')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '工程')
+    	]]>
+    </update>
+    
+    <update id="update24" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set PAIDAN_NUM =
+       (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '工单')
+ where u.spec_name = '传输干线'
+   and exists (select total_num
+          from TMP_ALARMCOMPSTAT v
+         where u.alarmregion = v.alarmregion
+           and u.alarmseverity = v.alarmseverity
+           and u.stattime = v.stattime
+           and v.spec_name = '传输网'
+           and v.type='省骨干层'
+           and v.num_type = '工单')
+    	]]>
+    </update>
+    
+    <update id="update25" parameterType="map">
+        <![CDATA[
+        update TAB_ALARMCOMPSTAT_TEMP_TEST u
+   set YOUXIAO_NUM = total_num - excep_num - chongfu_num - gongcheng_num
+ where total_num > 0 and stattime=${stattime}
+    	]]>
+    </update>
+   
+</mapper>

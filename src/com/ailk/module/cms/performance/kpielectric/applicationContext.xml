@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-init-method="start" default-destroy-method="destroy">
+
+	<import resource="classpath:conf/applicationContext_public.xml" />
+
+	<!-- log4j -->
+	<bean id="cms_alarm_indentify_log4jServer"
+		class="com.linkage.system.extend.log4j.Log4jConfigServer"
+		lazy-init="false">
+		<property name="watch_delay" value="10000"></property>
+		<property name="config_path"
+			value="classpath:com/ailk/module/cms/performance/kpielectric/log4j.properties">
+		</property>
+	</bean>
+
+	<!-- jdbc configure -->
+	<bean id="cms_performance_kpielectric_ppc"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		lazy-init="false">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="location">
+			<value>
+				classpath:com/ailk/module/cms/performance/kpielectric/jdbc.properties
+			</value>
+		</property>
+	</bean>
+
+	<!-- inspur -->
+	<bean id="cms_performance_kpielectric_inspurMainDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="false">
+		<property name="driverClassName" value="${jdbc0.driverClass}" />
+		<property name="url" value="${jdbc0.url}" />
+		<property name="username" value="${jdbc0.username}" />
+		<property name="password" value="${jdbc0.password}" />
+	</bean>
+	<bean id="cms_performance_kpielectric_inspurSqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource"
+			ref="cms_performance_kpielectric_inspurMainDataSource" />
+		<property name="configLocation"
+			value="classpath:conf/jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/common/*.xml
+				</value>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/oracle/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_performance_kpielectric_inspurSqlSessionTemplate"
+		class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg
+			ref="cms_performance_kpielectric_inspurSqlSessionFactory" />
+	</bean>
+
+	<!-- informix -->
+	<bean id="cms_performance_kpielectric_informixMainDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="false">
+		<property name="driverClassName" value="${jdbc1.driverClass}" />
+		<property name="url" value="${jdbc1.url}" />
+		<property name="username" value="${jdbc1.username}" />
+		<property name="password" value="${jdbc1.password}" />
+	</bean>
+	<bean id="cms_performance_kpielectric_informixSqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource"
+			ref="cms_performance_kpielectric_informixMainDataSource" />
+		<property name="configLocation"
+			value="classpath:conf/jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/common/*.xml
+				</value>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/oracle/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_performance_kpielectric_informixSqlSessionTemplate"
+		class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg
+			ref="cms_performance_kpielectric_informixSqlSessionFactory" />
+	</bean>
+
+	<!-- sybase -->
+	<bean id="cms_performance_kpielectric_sybaseMainDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="false">
+		<property name="driverClassName" value="${jdbc2.driverClass}" />
+		<property name="url" value="${jdbc2.url}" />
+		<property name="username" value="${jdbc2.username}" />
+		<property name="password" value="${jdbc2.password}" />
+	</bean>
+	<bean id="cms_performance_kpielectric_sybaseSqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource"
+			ref="cms_performance_kpielectric_sybaseMainDataSource" />
+		<property name="configLocation"
+			value="classpath:conf/jpaConfig.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/common/*.xml
+				</value>
+				<value>
+					classpath*:com/ailk/module/cms/performance/kpielectric/dao/mapper/oracle/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="cms_performance_kpielectric_sybaseSqlSessionTemplate"
+		class="com.linkage.system.jdbc.jpa.SqlSessionTemplate">
+		<constructor-arg
+			ref="cms_performance_kpielectric_sybaseSqlSessionFactory" />
+	</bean>
+
+	<!-- dao -->
+	<bean id="cms_performance_kpielectric_KpielectricDAOImp"
+		class="com.ailk.module.cms.performance.kpielectric.dao.KpielectricDAOImp"
+		parent="baseDao">
+		<property name="inspurStmpt">
+			<ref
+				local="cms_performance_kpielectric_inspurSqlSessionTemplate" />
+		</property>
+		<property name="ailkStmpt">
+			<ref
+				local="cms_performance_kpielectric_informixSqlSessionTemplate" />
+		</property>
+		<property name="zcssStmpt">
+			<ref
+				local="cms_performance_kpielectric_sybaseSqlSessionTemplate" />
+		</property>
+		<property name="inspurDs"
+			ref="cms_performance_kpielectric_inspurMainDataSource">
+		</property>
+	</bean>
+	<!-- serv -->
+	<bean id="cms_performance_kpielectric_KpielectricServImp"
+		class="com.ailk.module.cms.performance.kpielectric.serv.KpielectricServImp">
+		<property name="kpielectricDAO">
+			<ref local="cms_performance_kpielectric_KpielectricDAOImp" />
+		</property>
+		<property name="addStartTime">
+			<value>2012-07-10</value>
+		</property>
+		<property name="addEndTime">
+			<value>2012-07-28</value>
+		</property>
+		<property name="isAddData">
+			<value>0</value>
+		</property>
+		<property name="flag">
+			<value>1</value>
+		</property>
+	</bean>
+
+</beans>
